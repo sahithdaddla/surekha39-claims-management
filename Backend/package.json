@@ -5,15 +5,22 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Surekha35/claim-management.git"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Surekha35/claim-management/issues"
+  },
+  "homepage": "https://github.com/Surekha35/claim-management#readme",
   "description": "",
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^5.1.0",
-    "pg": "^8.16.0",
-    "sqlite3": "^5.1.7"
+    "pg": "^8.16.0"
   }
 }

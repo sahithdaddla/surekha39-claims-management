@@ -1,0 +1,577 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HR Claims Dashboard</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --background-light: #ecf0f1;
+            --text-color: #34495e;
+            --accent-color: #9b59b6;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--background-light);
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        }
+
+        .page-header h1 {
+            margin: 0;
+            font-size: 2.2em;
+            letter-spacing: 1px;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-card {
+            background-color: var(--background-light);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .dashboard-card:hover {
+            transform: scale(1.05);
+        }
+
+        .dashboard-card h3 {
+            margin-bottom: 10px;
+            color: var(--primary-color);
+            font-size: 1.1em;
+        }
+
+        .dashboard-card p {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin: 0;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .search-box {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .claims-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: white;
+        }
+
+        .claims-table th {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 500;
+        }
+
+        .claims-table td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .claims-table tr:hover {
+            background-color: #f5f6fa;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .status-pending {
+            background-color: #f1c40f;
+            color: #000;
+        }
+
+        .status-approved {
+            background-color: #2ecc71;
+            color: white;
+        }
+
+        .status-rejected {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-approve {
+            background-color: #2ecc71;
+        }
+
+        .btn-reject {
+            background-color: #e74c3c;
+        }
+
+        .btn-view {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-delete {
+            background-color: #c0392b;
+            color: white;
+        }
+
+        .no-claims {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-style: italic;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 8px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+        }
+
+        .claim-detail {
+            margin: 10px 0;
+        }
+
+        .claim-detail strong {
+            color: var(--primary-color);
+        }
+
+        .status-highlight {
+            font-size: 1.1em;
+            padding: 8px 15px;
+            border-radius: 10px;
+            display: inline-block;
+            margin: 10px 0;
+            font-weight: bold;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.2);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+            }
+        }
+
+        .status-highlight.pending {
+            background-color: #f1c40f;
+            color: #000;
+        }
+
+        .status-highlight.approved {
+            background-color: #2ecc71;
+            color: white;
+        }
+
+        .status-highlight.rejected {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .claims-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="page-header">
+            <h1>HR Claims Management System</h1>
+        </div>
+        
+        <div class="dashboard">
+            <div class="dashboard-card">
+                <h3>Total Claims</h3>
+                <p id="totalClaims">0</p>
+            </div>
+            <div class="dashboard-card">
+                <h3>Approved Claims</h3>
+                <p id="approvedClaims">0</p>
+            </div>
+            <div class="dashboard-card">
+                <h3>Pending Claims</h3>
+                <p id="pendingClaims">0</p>
+            </div>
+            <div class="dashboard-card">
+                <h3>Rejected Claims</h3>
+                <p id="rejectedClaims">0</p>
+            </div>
+        </div>
+
+        <div class="controls">
+            <input type="text" class="search-box" id="searchInput" placeholder="Search by Employee ID or Claim Type...">
+            <button class="btn btn-danger" id="clearDataBtn">Clear All Claims</button>
+        </div>
+
+        <table class="claims-table">
+            <thead>
+                <tr>
+                    <th>Employee ID</th>
+                    <th>Claim Type</th>
+                    <th>Amount</th>
+                    <th>Submission Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="claimsTableBody"></tbody>
+        </table>
+    </div>
+
+    <div id="claimModal" class="modal">
+        <div class="modal-content">
+            <span class="close">×</span>
+            <h3>Claim Details</h3>
+            <div id="claimDetails"></div>
+        </div>
+    </div>
+
+    <script>
+        function formatDate(isoString) {
+            try {
+                const date = new Date(isoString);
+                if (isNaN(date.getTime())) {
+                    return 'Not available';
+                }
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = date.getFullYear();
+                return `${day}/${month}/${year}`;
+            } catch (error) {
+                return 'Not available';
+            }
+        }
+
+        function formatAmount(amount) {
+            const numAmount = parseFloat(amount);
+            return isNaN(numAmount) ? 'N/A' : numAmount.toFixed(2);
+        }
+
+        async function loadClaims(searchQuery = '') {
+            try {
+                const response = await fetch(`http://localhost:3000/api/claims${searchQuery ? `?search=${encodeURIComponent(searchQuery)}` : ''}`);
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error || `HTTP error! Status: ${response.status}`);
+                }
+                const claims = await response.json();
+                
+                document.getElementById('totalClaims').textContent = claims.length;
+                document.getElementById('approvedClaims').textContent = claims.filter(c => c.status === 'Approved').length;
+                document.getElementById('pendingClaims').textContent = claims.filter(c => c.status === 'Pending').length;
+                document.getElementById('rejectedClaims').textContent = claims.filter(c => c.status === 'Rejected').length;
+
+                const tableBody = document.getElementById('claimsTableBody');
+                tableBody.innerHTML = '';
+
+                if (claims.length === 0) {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="no-claims">No claims found</td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                claims.forEach(claim => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${claim.employee_id || 'N/A'}</td>
+                        <td>${claim.claim_type || 'N/A'}</td>
+                        <td>${formatAmount(claim.claim_amount)}</td>
+                        <td>${claim.submission_date ? formatDate(claim.submission_date) : 'Not available'}</td>
+                        <td>
+                            <span class="status-badge status-${claim.status ? claim.status.toLowerCase() : 'unknown'}">
+                                ${claim.status || 'Unknown'}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-view" onclick="viewClaimDetails(${claim.id})">
+                                    View
+                                </button>
+                                <button class="btn btn-delete" onclick="deleteClaim(${claim.id})">
+                                    Delete
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error loading claims:', error);
+                alert(`Error loading claims: ${error.message || 'Please try again later.'}`);
+            }
+        }
+
+        async function updateClaimStatus(claimId, newStatus) {
+            if (confirm(`Are you sure you want to ${newStatus.toLowerCase()} the claim with ID ${claimId}?`)) {
+                try {
+                    const response = await fetch(`http://localhost:3000/api/claims/${claimId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status: newStatus })
+                    });
+                    if (response.ok) {
+                        alert(`Claim with ID ${claimId} has been ${newStatus.toLowerCase()}d successfully.`);
+                        loadClaims(document.getElementById('searchInput').value);
+                        document.getElementById('claimModal').style.display = 'none';
+                    } else {
+                        const errorData = await response.json().catch(() => ({}));
+                        alert(`Error updating claim: ${errorData.error || 'Unknown error'}`);
+                    }
+                } catch (error) {
+                    console.error('Error updating claim status:', error);
+                    alert(`Error updating claim status: ${error.message || 'Please try again later.'}`);
+                }
+            }
+        }
+
+        async function deleteClaim(claimId) {
+            if (confirm('Are you sure you want to delete this claim? This action cannot be undone.')) {
+                try {
+                    const response = await fetch(`http://localhost:3000/api/claims/${claimId}`, {
+                        method: 'DELETE'
+                    });
+                    if (response.ok) {
+                        loadClaims(document.getElementById('searchInput').value);
+                        alert('Claim deleted successfully.');
+                    } else {
+                        const errorData = await response.json().catch(() => ({}));
+                        alert(`Error deleting claim: ${errorData.error || 'Unknown error'}`);
+                    }
+                } catch (error) {
+                    console.error('Error deleting claim:', error);
+                    alert(`Error deleting claim: ${error.message || 'Please try again later.'}`);
+                }
+            }
+        }
+
+        async function viewClaimDetails(claimId) {
+            try {
+                const response = await fetch(`http://localhost:3000/api/claims/${claimId}`);
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error || `HTTP error! Status: ${response.status}`);
+                }
+                const claim = await response.json();
+                
+                const detailsContainer = document.getElementById('claimDetails');
+                const statusClass = claim.status ? claim.status.toLowerCase() : 'unknown';
+                
+                let detailsHtml = `
+                    <div class="claim-detail"><strong>ID:</strong> ${claim.id || 'N/A'}</div>
+                    <div class="claim-detail"><strong>Employee ID:</strong> ${claim.employee_id || 'N/A'}</div>
+                    <div class="claim-detail"><strong>Employee Name:</strong> ${claim.employee_name || 'Not available'}</div>
+                    <div class="claim-detail"><strong>Claim Type:</strong> ${claim.claim_type || 'N/A'}</div>
+                    <div class="claim-detail"><strong>Amount:</strong> ${formatAmount(claim.claim_amount)}</div>
+                    <div class="claim-detail"><strong>Submission Date:</strong> ${claim.submission_date ? formatDate(claim.submission_date) : 'Not available'}</div>
+                `;
+                
+                if (claim.claim_type && claim.claim_type.toLowerCase() === 'medical') {
+                    detailsHtml += `
+                        <div class="claim-detail"><strong>Hospital Name:</strong> ${claim.hospital_name || 'Not available'}</div>
+                        <div class="claim-detail"><strong>Treatment Period:</strong> ${claim.treatment_start_date && claim.treatment_end_date ? `${formatDate(claim.treatment_start_date)} to ${formatDate(claim.treatment_end_date)}` : 'Not available'}</div>
+                    `;
+                } else if (claim.claim_type && claim.claim_type.toLowerCase() === 'travel') {
+                    detailsHtml += `
+                        <div class="claim-detail"><strong>From Location:</strong> ${claim.from_location || 'Not available'}</div>
+                        <div class="claim-detail"><strong>To Location:</strong> ${claim.to_location || 'Not available'}</div>
+                        <div class="claim-detail"><strong>Travel Period:</strong> ${claim.travel_start_date && claim.travel_end_date ? `${formatDate(claim.travel_start_date)} to ${formatDate(claim.travel_end_date)}` : 'Not available'}</div>
+                    `;
+                } else if (claim.claim_type && claim.claim_type.toLowerCase() === 'mobile') {
+                    detailsHtml += `
+                        <div class="claim-detail"><strong>Work Period:</strong> ${claim.work_start_date && claim.work_end_date ? `${formatDate(claim.work_start_date)} to ${formatDate(claim.work_end_date)}` : 'Not available'}</div>
+                    `;
+                } else if (claim.claim_type && claim.claim_type.toLowerCase() === 'other') {
+                    detailsHtml += `
+                        <div class="claim-detail"><strong>Claim Name:</strong> ${claim.claim_name || 'Not available'}</div>
+                        <div class="claim-detail"><strong>Claim Date:</strong> ${claim.claim_date ? formatDate(claim.claim_date) : 'Not available'}</div>
+                        <div class="claim-detail"><strong>Description:</strong> ${claim.claim_description || 'Not available'}</div>
+                    `;
+                }
+                
+                detailsHtml += `
+                    <div class="claim-detail"><strong>Status:</strong> 
+                        <span class="status-highlight ${statusClass}">${claim.status || 'Unknown'}</span>
+                    </div>
+                `;
+                
+                if (claim.status === 'Pending') {
+                    detailsHtml += `
+                        <div class="action-buttons">
+                            <button class="btn btn-approve" onclick="updateClaimStatus(${claim.id}, 'Approved')">Approve</button>
+                            <button class="btn btn-reject" onclick="updateClaimStatus(${claim.id}, 'Rejected')">Reject</button>
+                        </div>
+                    `;
+                }
+                
+                detailsContainer.innerHTML = detailsHtml;
+                
+                const modal = document.getElementById('claimModal');
+                modal.style.display = 'block';
+            } catch (error) {
+                console.error('Error loading claim details:', error);
+                alert(`Error loading claim details: ${error.message || 'Please try again later.'}`);
+            }
+        }
+
+        const modal = document.getElementById('claimModal');
+        const span = document.getElementsByClassName('close')[0];
+
+        span.onclick = function() {
+            modal.style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            loadClaims(e.target.value);
+        });
+
+        document.getElementById('clearDataBtn').addEventListener('click', async () => {
+            if (confirm('Are you sure you want to clear all claims? This action cannot be undone.')) {
+                try {
+                    const response = await fetch('http://localhost:3000/api/claims', {
+                        method: 'DELETE'
+                    });
+                    if (response.ok) {
+                        loadClaims();
+                        alert('All claims cleared successfully.');
+                    } else {
+                        const errorData = await response.json().catch(() => ({}));
+                        alert(`Error clearing claims: ${errorData.error || 'Unknown error'}`);
+                    }
+                } catch (error) {
+                    console.error('Error clearing claims:', error);
+                    alert(`Error clearing claims: ${error.message || 'Please try again later.'}`);
+                }
+            }
+        });
+
+        window.onload = () => loadClaims();
+    </script>
+</body>
+</html>
