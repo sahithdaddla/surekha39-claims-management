@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Employee Claim Request Form</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f6f8f9 0%, #e5ebee 100%);
+            width: 100%;
+        }
+
+        .container {
+            width: 90%;
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+        }
+
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #34495e;
+            font-weight: 500;
+        }
+
+        .form-group input, 
+        .form-group select {
+            width: 96%;
+            padding: 10px 15px;
+            border: 2px solid #bdc3c7;
+            border-radius: 6px;
+            transition: border-color 0.3s ease;
+        }
+        .form-group select {
+            width: 99%;
+        }
+        .form-group input:focus, 
+        .form-group select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .error {
+            color: #e74c3c;
+            font-size: 0.8em;
+            position: absolute;
+            bottom: -20px;
+            left: 0;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            background-color: #2980b9;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #3498db;
+        }
+
+        .hint {
+            font-size: 0.8em;
+            color: #7f8c8d;
+            margin-top: 4px;
+        }
+
+        .required {
+            color: #e74c3c;
+            margin-left: 4px;
+        }
+        .header-content {
+            flex: 1;
+            text-align: center;
+        }
+
+        .header-content h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+            color: white;
+        }
+        .header {
+            background: linear-gradient(135deg, #2f3790 0%, #7dacf4 100%);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            width: 93%;
+        }
+        
+        .info-icon {
+            color: #3498db;
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: 8px;
+            font-weight: bold;
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            text-align: center;
+            border-radius: 50%;
+            background-color: #e7f2fa;
+            border: 1px solid #3498db;
+            position: relative;
+        }
+        
+        .tooltip {
+            visibility: hidden;
+            width: 220px;
+            background-color: #34495e;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 65%;
+            left: 70%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .info-icon:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                padding: 15px;
+            }
+            
+            .logo-container {
+                margin-bottom: 10px;
+            }
+            
+            .user-section {
+                margin-top: 10px;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>Employee Claim Portal</h1>
+        </div>
+    </div>
+    <div class="container">
+        <form id="claimForm" novalidate>
+            <div class="form-group">
+                <label>Employee Name <span class="required">*</span></label>
+                <input type="text" id="employeeName" placeholder="Enter your name" maxlength="50">
+                <span id="employeeNameError" class="error"></span>
+            </div>
+            <div class="form-group">
+                <label>Employee ID <span class="required">*</span>
+                    <span class="info-icon">i
+                        <span class="tooltip">Format: ATS0 followed by 3 digits. Last 3 digits cannot all be zero, but last digit can be zero.</span>
+                    </span>
+                </label>
+                <input type="text" id="employeeId" placeholder="Format: ATS0XXX" maxlength="7">
+                <span id="employeeIdError" class="error"></span>
+            </div>
+
+            <div class="form-group">
+                <label>Claim Type <span class="required">*</span></label>
+                <select id="claimType">
+                    <option value="">Select Claim Type</option>
+                    <option value="medical">Medical Claim</option>
+                    <option value="travel">Travel Claim</option>
+                    <option value="work from home">Work From Home Claim</option>
+                    <option value="other">Other</option>
+                </select>
+                <span id="claimTypeError" class="error"></span>
+            </div>
+
+            <div id="claimTypeFields"></div>
+
+            <div class="form-group">
+                <label>
+                    Claim Amount <span class="required">*</span>
+                    <span class="info-icon">i
+                        <span class="tooltip">Amount must be between 500 and 1,000,000</span>
+                    </span>
+                </label>
+                <input type="number" id="claimAmount" onkeydown="return event.keyCode !== 69 && event.keyCode !== 189 && event.keyCode 
+                !== 187">
+                <span id="claimAmountError" class="error"></span>
+            </div>
+            <div class="form-group">
+                <span id="formSubmissionError" class="error"></span>
+            </div>
+            <button type="submit">Submit Claim</button>
+        </form>
+    </div>
+
+    <script>
+function validateEmployeeId(id) {
+    const regex = /^ATS0\d{3}$/;
+    if (!regex.test(id)) return false;
+    const lastThreeDigits = id.slice(4);
+    return lastThreeDigits !== "000";
+}
+
+function validateAlphabetsWithSingleSpace(value) {
+    const trimmedValue = value.trim();
+    if (trimmedValue === '') return false;
+    const regex = /^[A-Za-z]+( [A-Za-z]+)*$/;
+    const letterCount = trimmedValue.replace(/[^A-Za-z]/g, '').length;
+    return regex.test(trimmedValue) && letterCount >= 3 && letterCount <= 50;
+}
+
+function restrictSingleSpaceAfterAlphabets(value) {
+    let result = value;
+    result = result.replace(/[^A-Za-z\s]/g, '');
+    result = result.replace(/\s+/g, ' ');
+    result = result.replace(/(\S)\s(\S)/g, '$1 $2');
+    return result;
+}
+
+function restrictSingleSpaceInDescription(value) {
+    return value.replace(/\s+/g, ' ');
+}
+
+function validateDescription(value) {
+    const trimmedValue = value.trim();
+    if (trimmedValue === '') return false;
+    return trimmedValue.length <= 100;
+}
+
+function validateAmount(amount) {
+    const numAmount = parseInt(amount);
+    return numAmount >= 500 && numAmount <= 1000000 && amount.charAt(0) !== '0' && amount.length <= 8;
+}
+
+function getDateXMonthsAgo(months) {
+    const date = new Date();
+    date.setMonth(date.getMonth() - months);
+    return date.toISOString().split('T')[0];
+}
+
+function getDateXMonthsFromNow(months) {
+    const date = new Date();
+    date.setMonth(date.getMonth() + months);
+    return date.toISOString().split('T')[0];
+}
+
+function validateClaimDate(startDate, endDate) {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const currentDate = new Date();
+    currentDate.setHours(23, 59, 59, 999);
+    const twoYearsAgo = new Date();
+    twoYearsAgo.setFullYear(currentDate.getFullYear() - 2);
+    twoYearsAgo.setHours(0, 0, 0, 0);
+    const eighteenMonthsFromNow = new Date();
+    eighteenMonthsFromNow.setMonth(currentDate.getMonth() + 18);
+    eighteenMonthsFromNow.setHours(23, 59, 59, 999);
+    
+    return start >= twoYearsAgo && start <= eighteenMonthsFromNow && 
+           end >= twoYearsAgo && end <= eighteenMonthsFromNow && 
+           start <= end;
+}
+
+function validateSingleDate(dateString) {
+    const date = new Date(dateString);
+    const currentDate = new Date();
+    const twoYearsAgo = new Date();
+    twoYearsAgo.setFullYear(currentDate.getFullYear() - 2);
+    twoYearsAgo.setHours(0, 0, 0, 0);
+    const eighteenMonthsFromNow = new Date();
+    eighteenMonthsFromNow.setMonth(currentDate.getMonth() + 18);
+    eighteenMonthsFromNow.setHours(23, 59, 59, 999);
+    return date >= twoYearsAgo && date <= eighteenMonthsFromNow;
+}
+
+function formatInputDate(dateInput) {
+    const date = new Date(dateInput);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${year}-${month}-${day}`;
+}
+
+function clearErrorMessages() {
+    document.querySelectorAll('.error').forEach(el => el.textContent = '');
+}
+
+function setError(elementId, message) {
+    document.getElementById(elementId).textContent = message;
+}
+
+function clearError(elementId) {
+    document.getElementById(elementId).textContent = '';
+}
+
+function validateLocationsDifferent(fromLocation, toLocation) {
+    return fromLocation.trim().toLowerCase() !== toLocation.trim().toLowerCase();
+}
+
+function applySpaceValidation(id) {
+    const element = document.getElementById(id);
+    if (element) {
+        element.addEventListener('input', function() {
+            this.value = restrictSingleSpaceAfterAlphabets(this.value);
+            if (this.value.trim() === '') this.value = '';
+        });
+    }
+}
+
+function addMissingErrorSpans() {
+    const claimTypeGroup = document.getElementById('claimType').parentElement;
+    if (!document.getElementById('claimTypeError')) {
+        const errorSpan = document.createElement('span');
+        errorSpan.id = 'claimTypeError';
+        errorSpan.className = 'error';
+        claimTypeGroup.appendChild(errorSpan);
+    }
+}
+
+function initializeForm() {
+    const twoYearsAgo = getDateXMonthsAgo(24);
+    const eighteenMonthsFromNow = getDateXMonthsFromNow(18);
+
+    const employeeNameInput = document.getElementById('employeeName');
+    employeeNameInput.addEventListener('input', function() {
+        this.value = restrictSingleSpaceAfterAlphabets(this.value);
+        if (this.value.trim() === '') this.value = '';
+        if (validateAlphabetsWithSingleSpace(this.value)) {
+            clearError('employeeNameError');
+        } else {
+            setError('employeeNameError', 'Employee name must contain 3-50 letters with single spaces between words');
+        }
+    });
+
+    document.getElementById('claimAmount').addEventListener('input', function() {
+        this.value = this.value.replace(/[^0-9]/g, '');
+        if (this.value.length > 7) this.value = this.value.slice(0, 7);
+        if (validateAmount(this.value)) {
+            clearError('claimAmountError');
+        } else {
+            setError('claimAmountError', 'Amount must be between 500 and 1,000,000');
+        }
+    });
+
+   document.getElementById('claimAmount').addEventListener('keydown', function(e) {
+    // Prevent typing of 'e', 'E', '+', '-', '.' characters
+    if (['e', 'E', '+', '-', '.'].includes(e.key)) {
+        e.preventDefault();
+    }
+});
+
+    document.getElementById('employeeId').addEventListener('input', function() {
+        this.value = this.value.replace(/[^A-Za-z0-9]/g, '');
+        if (this.value.length > 7) this.value = this.value.slice(0, 7);
+        if (validateEmployeeId(this.value)) {
+            clearError('employeeIdError');
+        } else {
+            setError('employeeIdError', 'Invalid Employee ID. Must start with ATS0 followed by 3 digits. Last 3 digits cannot all be zeros.');
+        }
+    });
+
+    document.getElementById('claimType').addEventListener('change', function() {
+        const claimType = this.value;
+        const fieldsContainer = document.getElementById('claimTypeFields');
+        fieldsContainer.innerHTML = '';
+        clearErrorMessages();
+        if (claimType) clearError('claimTypeError');
+
+        switch(claimType) {
+            case 'medical':
+                fieldsContainer.innerHTML = `
+                    <div class="form-group">
+                        <label>Hospital Name <span class="required">*</span></label>
+                        <input type="text" id="hospitalName" required maxlength="50">
+                        <span id="hospitalNameError" class="error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Treatment Start Date <span class="required">*</span></label>
+                        <input type="date" id="treatmentStartDate" required min="${twoYearsAgo}" max="${eighteenMonthsFromNow}">
+                        <span id="treatmentStartDateError" class="error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Treatment End Date <span class="required">*</span></label>
+                        <input type="date" id="treatmentEndDate" required min="${twoYearsAgo}" max="${eighteenMonthsFromNow}">
+                        <span id="treatmentEndDateError" class="error"></span>
+                    </div>
+                `;
+                
+                applySpaceValidation('hospitalName');
+                document.getElementById('hospitalName').addEventListener('input', function() {
+                    this.value = restrictSingleSpaceAfterAlphabets(this.value);
+                    if (this.value.trim() === '') this.value = '';
+                    if (validateAlphabetsWithSingleSpace(this.value)) {
+                        clearError('hospitalNameError');
+                    } else {
+                        setError('hospitalNameError', 'Hospital name must contain 3-50 letters with single spaces between words');
+                    }
+                });
+
+                document.getElementById('treatmentStartDate').addEventListener('change', function() {
+                    const endDate = document.getElementById('treatmentEndDate').value;
+                    if (this.value && validateSingleDate(this.value) && (!endDate || validateClaimDate(this.value, endDate))) {
+                        clearError('treatmentStartDateError');
+                        this.setAttribute('data-formatted-date', formatInputDate(this.value));
+                    } else {
+                        setError('treatmentStartDateError', 'Date must be within last 2 years and next 18 months, and end date must be after start date');
+                    }
+                });
+
+                document.getElementById('treatmentEndDate').addEventListener('change', function() {
+                    const startDate = document.getElementById('treatmentStartDate').value;
+                    if (this.value && validateSingleDate(this.value) && startDate && validateClaimDate(startDate, this.value)) {
+                        clearError('treatmentEndDateError');
+                        this.setAttribute('data-formatted-date', formatInputDate(this.value));
+                    } else {
+                        setError('treatmentEndDateError', 'Date must be within last 2 years and next 18 months, and must be after start date');
+                    }
+                });
+                break;
+
+            case 'travel':
+                fieldsContainer.innerHTML = `
+                    <div class="form-group">
+                        <label>From Location <span class="required">*</span></label>
+                        <input type="text" id="fromLocation" required maxlength="50">
+                        <span id="fromLocationError" class="error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>To Location <span class="required">*</span></label>
+                        <input type="text" id="toLocation" required maxlength="50">
+                        <span id="toLocationError" class="error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Travel Start Date <span class="required">*</span></label>
+                        <input type="date" id="travelStartDate" required min="${twoYearsAgo}" max="${eighteenMonthsFromNow}">
+                        <span id="travelStartDateError" class="error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Travel End Date <span class="required">*</span></label>
+                        <input type="date" id="travelEndDate" required min="${twoYearsAgo}" max="${eighteenMonthsFromNow}">
+                        <span id="travelEndDateError" class="error"></span>
+                    </div>
+                `;
+                
+                applySpaceValidation('fromLocation');
+                applySpaceValidation('toLocation');
+                
+                const fromLocationInput = document.getElementById('fromLocation');
+                const toLocationInput = document.getElementById('toLocation');
+                
+                fromLocationInput.addEventListener('input', function() {
+                    this.value = restrictSingleSpaceAfterAlphabets(this.value);
+                    if (this.value.trim() === '') this.value = '';
+                    if (validateAlphabetsWithSingleSpace(this.value)) {
+                        clearError('fromLocationError');
+                        if (toLocationInput.value && !validateLocationsDifferent(this.value, toLocationInput.value)) {
+                            setError('toLocationError', 'From and To locations cannot be the same');
+                        } else {
+                            clearError('toLocationError');
+                        }
+                    } else {
+                        setError('fromLocationError', 'From location must contain 3-50 letters with single spaces between words');
+                    }
+                });
+
+                toLocationInput.addEventListener('input', function() {
+                    this.value = restrictSingleSpaceAfterAlphabets(this.value);
+                    if (this.value.trim() === '') this.value = '';
+                    if (validateAlphabetsWithSingleSpace(this.value)) {
+                        clearError('toLocationError');
+                        if (fromLocationInput.value && !validateLocationsDifferent(fromLocationInput.value, this.value)) {
+                            setError('toLocationError', 'From and To locations cannot be the same');
+                        }
+                    } else {
+                        setError('toLocationError', 'To location must contain 3-50 letters with single spaces between words');
+                    }
+                });
+
+                document.getElementById('travelStartDate').addEventListener('change', function() {
+                    const endDate = document.getElementById('travelEndDate').value;
+                    if (this.value && validateSingleDate(this.value) && (!endDate || validateClaimDate(this.value, endDate))) {
+                        clearError('travelStartDateError');
+                        this.setAttribute('data-formatted-date', formatInputDate(this.value));
+                    } else {
+                        setError('travelStartDateError', 'Date must be within last 2 years and next 18 months, and end date must be after start date');
+                    }
+                });
+
+                document.getElementById('travelEndDate').addEventListener('change', function() {
+                    const startDate = document.getElementById('travelStartDate').value;
+                    if (this.value && validateSingleDate(this.value) && startDate && validateClaimDate(startDate, this.value)) {
+                        clearError('travelEndDateError');
+                        this.setAttribute('data-formatted-date', formatInputDate(this.value));
+                    } else {
+                        setError('travelEndDateError', 'Date must be within last 2 years and next 18 months, and must be after start date');
+                    }
+                });
+                break;
+                
+            case 'work from home':
+                fieldsContainer.innerHTML = `
+                    <div class="form-group">
+                        <label>Work Start Date <span class="required">*</span></label>
+                        <input type="date" id="workStartDate" required min="${twoYearsAgo}" max="${eighteenMonthsFromNow}">
+                        <span id="workStartDateError" class="error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Work End Date <span class="required">*</span></label>
+                        <input type="date" id="workEndDate" required min="${twoYearsAgo}" max="${eighteenMonthsFromNow}">
+                        <span id="workEndDateError" class="error"></span>
+                    </div>
+                `;
+                
+                document.getElementById('workStartDate').addEventListener('change', function() {
+                    const endDate = document.getElementById('workEndDate').value;
+                    if (this.value && validateSingleDate(this.value) && (!endDate || validateClaimDate(this.value, endDate))) {
+                        clearError('workStartDateError');
+                        this.setAttribute('data-formatted-date', formatInputDate(this.value));
+                    } else {
+                        setError('workStartDateError', 'Date must be within last 2 years and next 18 months, and end date must be after start date');
+                    }
+                });
+
+                document.getElementById('workEndDate').addEventListener('change', function() {
+                    const startDate = document.getElementById('workStartDate').value;
+                    if (this.value && validateSingleDate(this.value) && startDate && validateClaimDate(startDate, this.value)) {
+                        clearError('workEndDateError');
+                        this.setAttribute('data-formatted-date', formatInputDate(this.value));
+                    } else {
+                        setError('workEndDateError', 'Date must be within last 2 years and next 18 months, and must be after start date');
+                    }
+                });
+                break;
+                
+            case 'other':
+                fieldsContainer.innerHTML = `
+                    <div class="form-group">
+                        <label>Claim Name <span class="required">*</span></label>
+                        <input type="text" id="claimName" required maxlength="50">
+                        <span id="claimNameError" class="error"></span>
+                        <div class="hint">Must be 3-50 letters</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Claim Date <span class="required">*</span></label>
+                        <input type="date" id="claimDate" required min="${twoYearsAgo}" max="${eighteenMonthsFromNow}">
+                        <span id="claimDateError" class="error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Description <span class="required">*</span></label>
+                        <input type="text" id="claimDescription" required maxlength="100">
+                        <span id="claimDescriptionError" class="error"></span>
+                        <div class="hint">Up to 100 characters, single spaces allowed</div>
+                    </div>
+                `;
+                
+                applySpaceValidation('claimName');
+                document.getElementById('claimName').addEventListener('input', function() {
+                    this.value = restrictSingleSpaceAfterAlphabets(this.value);
+                    if (this.value.trim() === '') this.value = '';
+                    if (validateAlphabetsWithSingleSpace(this.value)) {
+                        clearError('claimNameError');
+                    } else {
+                        setError('claimNameError', 'Claim name must contain 3-50 letters with single spaces between words');
+                    }
+                });
+
+                document.getElementById('claimDate').addEventListener('change', function() {
+                    if (this.value && validateSingleDate(this.value)) {
+                        clearError('claimDateError');
+                        this.setAttribute('data-formatted-date', formatInputDate(this.value));
+                    } else {
+                        setError('claimDateError', 'Date must be within last 2 years and next 18 months');
+                    }
+                });
+
+                document.getElementById('claimDescription').addEventListener('input', function() {
+                    this.value = restrictSingleSpaceInDescription(this.value);
+                    if (validateDescription(this.value)) {
+                        clearError('claimDescriptionError');
+                    } else {
+                        setError('claimDescriptionError', 'Description must be up to 100 characters, single spaces allowed');
+                    }
+                });
+                break;
+        }
+    });
+
+    document.getElementById('claimForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        validateAllFields();
+    });
+
+    async function validateAllFields() {
+        clearErrorMessages();
+
+        const employeeId = document.getElementById('employeeId').value;
+        const claimType = document.getElementById('claimType').value;
+        const claimAmount = document.getElementById('claimAmount').value;
+        const employeeName = document.getElementById('employeeName').value;
+
+        let isValid = true;
+        
+        if (!employeeName.trim()) {
+            setError('employeeNameError', 'Employee name is required');
+            isValid = false;
+        } else if (!validateAlphabetsWithSingleSpace(employeeName)) {
+            setError('employeeNameError', 'Employee name must contain 3-50 letters with single spaces between words');
+            isValid = false;
+        }
+
+        if (!employeeId.trim()) {
+            setError('employeeIdError', 'Employee ID is required');
+            isValid = false;
+        } else if (!validateEmployeeId(employeeId)) {
+            setError('employeeIdError', 'Invalid Employee ID. Must start with ATS0 followed by 3 digits. Last 3 digits cannot all be zeros.');
+            isValid = false;
+        }
+
+        if (!claimType) {
+            setError('claimTypeError', 'Please select a claim type');
+            isValid = false;
+        }
+
+        if (!claimAmount) {
+            setError('claimAmountError', 'Claim amount is required');
+            isValid = false;
+        } else if (!validateAmount(claimAmount)) {
+            setError('claimAmountError', 'Amount must be between 500 and 1,000,000');
+            isValid = false;
+        }
+
+        const claim = {
+            employeeId,
+            employeeName,
+            claimType,
+            claimAmount: parseFloat(claimAmount),
+            status: 'Pending'
+        };
+
+        if (claimType) {
+            if (claimType === 'medical') {
+                const hospitalName = document.getElementById('hospitalName').value;
+                const treatmentStartDate = document.getElementById('treatmentStartDate').value;
+                const treatmentEndDate = document.getElementById('treatmentEndDate').value;
+
+                if (!hospitalName.trim()) {
+                    setError('hospitalNameError', 'Hospital name is required');
+                    isValid = false;
+                } else if (!validateAlphabetsWithSingleSpace(hospitalName)) {
+                    setError('hospitalNameError', 'Hospital name must contain 3-50 letters with single spaces between words');
+                    isValid = false;
+                }
+
+                if (!treatmentStartDate) {
+                    setError('treatmentStartDateError', 'Please select a start date');
+                    isValid = false;
+                } else if (!validateSingleDate(treatmentStartDate)) {
+                    setError('treatmentStartDateError', 'Date must be within last 2 years and next 18 months');
+                    isValid = false;
+                }
+
+                if (!treatmentEndDate) {
+                    setError('treatmentEndDateError', 'Please select an end date');
+                    isValid = false;
+                } else if (!validateSingleDate(treatmentEndDate)) {
+                    setError('treatmentEndDateError', 'Date must be within last 2 years and next 18 months');
+                    isValid = false;
+                }
+
+                if (treatmentStartDate && treatmentEndDate && !validateClaimDate(treatmentStartDate, treatmentEndDate)) {
+                    setError('treatmentEndDateError', 'End date must be after start date');
+                    isValid = false;
+                }
+                
+                claim.hospitalName = hospitalName;
+                claim.treatmentStartDate = formatInputDate(treatmentStartDate);
+                claim.treatmentEndDate = formatInputDate(treatmentEndDate);
+            }
+
+            if (claimType === 'travel') {
+                const fromLocation = document.getElementById('fromLocation').value;
+                const toLocation = document.getElementById('toLocation').value;
+                const travelStartDate = document.getElementById('travelStartDate').value;
+                const travelEndDate = document.getElementById('travelEndDate').value;
+
+                if (!fromLocation.trim()) {
+                    setError('fromLocationError', 'From location is required');
+                    isValid = false;
+                } else if (!validateAlphabetsWithSingleSpace(fromLocation)) {
+                    setError('fromLocationError', 'From location must contain 3-50 letters with single spaces between words');
+                    isValid = false;
+                }
+
+                if (!toLocation.trim()) {
+                    setError('toLocationError', 'To location is required');
+                    isValid = false;
+                } else if (!validateAlphabetsWithSingleSpace(toLocation)) {
+                    setError('toLocationError', 'To location must contain 3-50 letters with single spaces between words');
+                    isValid = false;
+                }
+                
+                if (validateAlphabetsWithSingleSpace(fromLocation) && validateAlphabetsWithSingleSpace(toLocation) && 
+                    !validateLocationsDifferent(fromLocation, toLocation)) {
+                    setError('toLocationError', 'From and To locations cannot be the same');
+                    isValid = false;
+                }
+
+                if (!travelStartDate) {
+                    setError('travelStartDateError', 'Please select a start date');
+                    isValid = false;
+                } else if (!validateSingleDate(travelStartDate)) {
+                    setError('travelStartDateError', 'Date must be within last 2 years and next 18 months');
+                    isValid = false;
+                }
+
+                if (!travelEndDate) {
+                    setError('travelEndDateError', 'Please select an end date');
+                    isValid = false;
+                } else if (!validateSingleDate(travelEndDate)) {
+                    setError('travelEndDateError', 'Date must be within last 2 years and next 18 months');
+                    isValid = false;
+                }
+
+                if (travelStartDate && travelEndDate && !validateClaimDate(travelStartDate, travelEndDate)) {
+                    setError('travelEndDateError', 'Start date must be before end date');
+                    isValid = false;
+                }
+                
+                claim.fromLocation = fromLocation;
+                claim.toLocation = toLocation;
+                claim.travelStartDate = formatInputDate(travelStartDate);
+                claim.travelEndDate = formatInputDate(travelEndDate);
+            }
+            
+            if (claimType === 'work from home') {
+                const workStartDate = document.getElementById('workStartDate').value;
+                const workEndDate = document.getElementById('workEndDate').value;
+                
+                if (!workStartDate) {
+                    setError('workStartDateError', 'Please select a start date');
+                    isValid = false;
+                } else if (!validateSingleDate(workStartDate)) {
+                    setError('workStartDateError', 'Date must be within last 2 years and next 18 months');
+                    isValid = false;
+                }
+
+                if (!workEndDate) {
+                    setError('workEndDateError', 'Please select an end date');
+                    isValid = false;
+                } else if (!validateSingleDate(workEndDate)) {
+                    setError('workEndDateError', 'Date must be within last 2 years and next 18 months');
+                    isValid = false;
+                }
+
+                if (workStartDate && workEndDate && !validateClaimDate(workStartDate, workEndDate)) {
+                    setError('workEndDateError', 'End date must be after start date');
+                    isValid = false;
+                }
+                
+                claim.workStartDate = formatInputDate(workStartDate);
+                claim.workEndDate = formatInputDate(workEndDate);
+            }
+            
+            if (claimType === 'other') {
+                const claimName = document.getElementById('claimName').value;
+                const claimDate = document.getElementById('claimDate').value;
+                const claimDescription = document.getElementById('claimDescription').value;
+                
+                if (!claimName.trim()) {
+                    setError('claimNameError', 'Claim name is required');
+                    isValid = false;
+                } else if (!validateAlphabetsWithSingleSpace(claimName)) {
+                    setError('claimNameError', 'Claim name must contain 3-50 letters with single spaces between words');
+                    isValid = false;
+                }
+                
+                if (!claimDate) {
+                    setError('claimDateError', 'Please select a claim date');
+                    isValid = false;
+                } else if (!validateSingleDate(claimDate)) {
+                    setError('claimDateError', 'Date must be within last 2 years and next 18 months');
+                    isValid = false;
+                }
+                
+                if (!claimDescription.trim()) {
+                    setError('claimDescriptionError', 'Description is required');
+                    isValid = false;
+                } else if (!validateDescription(claimDescription)) {
+                    setError('claimDescriptionError', 'Description must be up to 100 characters, single spaces allowed');
+                    isValid = false;
+                }
+                
+                claim.claimName = claimName;
+                claim.claimDate = formatInputDate(claimDate);
+                claim.claimDescription = claimDescription;
+            }
+        }
+
+        if (!isValid) return;
+
+        try {
+            const response = await fetch('http://localhost:3000/api/claims', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(claim)
+            });
+            
+            if (response.ok) {
+                alert('Claim submitted successfully!');
+                document.getElementById('claimForm').reset();
+                document.getElementById('claimTypeFields').innerHTML = '';
+                clearError('formSubmissionError');
+            } else {
+                const errorData = await response.json();
+                if (errorData.error === 'Only one claim per day is allowed per employee') {
+                    setError('formSubmissionError', 'You can only submit one claim per day.');
+                } else {
+                    setError('formSubmissionError', `Error: ${errorData.error || 'Unknown error'}`);
+                }
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            setError('formSubmissionError', 'Error submitting claim. Please try again later.');
+        }
+    }
+}
+
+function enhancedInitializeForm() {
+    addMissingErrorSpans();
+    initializeForm();
+    
+    document.getElementById('claimTypeFields').addEventListener('input', function(e) {
+        if (e.target.tagName === 'INPUT' && e.target.type === 'text' && e.target.id !== 'claimDescription') {
+            e.target.value = restrictSingleSpaceAfterAlphabets(e.target.value);
+            if (e.target.value.trim() === '') e.target.value = '';
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', enhancedInitializeForm);
+</script>
+</body>
+</html>
