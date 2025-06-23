@@ -1,0 +1,71 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: claims39-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: employee_claims_db
+    ports:
+      - "5457:5432"
+    volumes:
+      - pgdata_claims39:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - claims-net
+
+  backend:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    container_name: claims39-backend
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: employee_claims_db
+      DB_USER: postgres
+      DB_PASSWORD: admin123
+      PORT: 3026
+    ports:
+      - "3026:3026"
+    networks:
+      - claims-net
+
+  employee-side-claim:
+    build:
+      context: ./employee-side-claim
+      dockerfile: Dockerfile
+    container_name: claims39-ui-employee
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "8162:80"
+    networks:
+      - claims-net
+
+  hr-claim:
+    build:
+      context: ./hr-claim
+      dockerfile: Dockerfile
+    container_name: claims39-ui-hr
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "8163:80"
+    networks:
+      - claims-net
+
+networks:
+  claims-net:
+
+volumes:
+  pgdata_claims39:
+
