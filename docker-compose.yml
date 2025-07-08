@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: admin123
       POSTGRES_DB: employee_claims_db
     ports:
-      - "5457:5432"
+      - "5604:5432"
     volumes:
       - pgdata_claims39:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
@@ -31,9 +31,9 @@ services:
       DB_NAME: employee_claims_db
       DB_USER: postgres
       DB_PASSWORD: admin123
-      PORT: 3026
+      PORT: 3604
     ports:
-      - "3026:3026"
+      - "3604:3604"
     networks:
       - claims-net
 
@@ -46,7 +46,7 @@ services:
     depends_on:
       - backend
     ports:
-      - "8162:80"
+      - "8608:80"
     networks:
       - claims-net
 
@@ -59,7 +59,7 @@ services:
     depends_on:
       - backend
     ports:
-      - "8163:80"
+      - "8609:80"
     networks:
       - claims-net
 

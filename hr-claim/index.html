@@ -367,7 +367,7 @@
 
         async function loadClaims(searchQuery = '') {
             try {
-                const response = await fetch(`http://13.48.195.115:3026/api/claims${searchQuery ? `?search=${encodeURIComponent(searchQuery)}` : ''}`);
+                const response = await fetch(`http://3.85.61.23:3604/api/claims${searchQuery ? `?search=${encodeURIComponent(searchQuery)}` : ''}`);
                 if (!response.ok) {
                     const errorData = await response.json().catch(() => ({}));
                     throw new Error(errorData.error || `HTTP error! Status: ${response.status}`);
@@ -425,7 +425,7 @@
         async function updateClaimStatus(claimId, newStatus) {
             if (confirm(`Are you sure you want to ${newStatus.toLowerCase()} the claim with ID ${claimId}?`)) {
                 try {
-                    const response = await fetch(`http://13.48.195.115:3026/api/claims/${claimId}`, {
+                    const response = await fetch(`http://3.85.61.23:3604/api/claims/${claimId}`, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ status: newStatus })
@@ -448,7 +448,7 @@
         async function deleteClaim(claimId) {
             if (confirm('Are you sure you want to delete this claim? This action cannot be undone.')) {
                 try {
-                    const response = await fetch(`http://13.48.195.115:3026/api/claims/${claimId}`, {
+                    const response = await fetch(`http://3.85.61.23:3604/api/claims/${claimId}`, {
                         method: 'DELETE'
                     });
                     if (response.ok) {
@@ -467,7 +467,7 @@
 
         async function viewClaimDetails(claimId) {
             try {
-                const response = await fetch(`http://13.48.195.115:3026/api/claims/${claimId}`);
+                const response = await fetch(`http://3.85.61.23:3604/api/claims/${claimId}`);
                 if (!response.ok) {
                     const errorData = await response.json().catch(() => ({}));
                     throw new Error(errorData.error || `HTTP error! Status: ${response.status}`);
@@ -554,7 +554,7 @@
         document.getElementById('clearDataBtn').addEventListener('click', async () => {
             if (confirm('Are you sure you want to clear all claims? This action cannot be undone.')) {
                 try {
-                    const response = await fetch('http://13.48.195.115:3026/api/claims', {
+                    const response = await fetch('http://3.85.61.23:3604/api/claims', {
                         method: 'DELETE'
                     });
                     if (response.ok) {
